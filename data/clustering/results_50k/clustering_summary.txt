@@ -1,0 +1,54 @@
+======================================================================
+CLUSTERING ANALYSIS SUMMARY
+======================================================================
+
+
+KMEANS
+----------------------------------------------------------------------
+Silhouette score: 0.769
+Davies-Bouldin index: 0.729
+Calinski-Harabasz score: 47437.2
+
+Cluster sizes:
+  Cluster 0: 48,033 clips (96.1%)
+  Cluster 1: 713 clips (1.4%)
+  Cluster 2: 1,254 clips (2.5%)
+
+HDBSCAN
+----------------------------------------------------------------------
+Number of clusters: 4
+Noise points: 4,169
+Silhouette score: 0.271
+Davies-Bouldin index: 1.025
+Calinski-Harabasz score: 7412.7
+
+Cluster sizes:
+  Cluster 0: 77 clips (0.2%)
+  Cluster 1: 51 clips (0.1%)
+  Cluster 2: 15,426 clips (30.9%)
+  Cluster 3: 30,277 clips (60.6%)
+
+GMM
+----------------------------------------------------------------------
+Silhouette score: 0.219
+Davies-Bouldin index: 1.807
+Calinski-Harabasz score: 5817.3
+Average confidence: 1.000
+
+Cluster sizes:
+  Cluster 0: 12,802 clips (25.6%)
+  Cluster 1: 28,694 clips (57.4%)
+  Cluster 2: 8,504 clips (17.0%)
+
+======================================================================
+RECOMMENDATION
+----------------------------------------------------------------------
+Based on the metrics:
+- Silhouette score: Higher is better (range: -1 to 1)
+- Davies-Bouldin index: Lower is better
+- Calinski-Harabasz score: Higher is better
+
+Consider the algorithm with the best balance of these metrics.
+HDBSCAN is good if you want to find natural clusters and handle noise.
+K-means is good for well-separated, spherical clusters.
+GMM is good for overlapping clusters with uncertainty.

@@ -1,0 +1,13 @@
+Two-Stage Detector Summary
+==================================================
+
+Total clips: 15,392
+
+Stage 1 (AMBIENT vs BIO):
+  AMBIENT: 14,524
+  BIO: 868
+
+Final (with HUMAN detection):
+  AMBIENT: 10,623
+  HUMAN: 3,901
+  BIO: 868

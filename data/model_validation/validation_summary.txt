@@ -1,0 +1,18 @@
+Model Validation Summary
+================================================================================
+
+Robustness Score: 0.998
+Model Agreement Score: 0.999
+Combined Confidence: 0.998
+
+Test 1 - Robustness:
+  Model predictions remain stable under perturbations
+
+Test 2 - Model Agreement:
+  5 different models trained
+  Mean agreement: 0.999
+  Mean Cohen's Kappa: 0.987
+
+Unanimous predictions: 3070/3079
+Majority predictions: 9/3079
+Split predictions: 0/3079

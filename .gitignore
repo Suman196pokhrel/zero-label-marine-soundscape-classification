@@ -1,3 +1,7 @@
-data
+
 model
-data/
+data/features/
+data/manifests
+data/wav
+
+
