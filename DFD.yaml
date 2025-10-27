@@ -1,0 +1,87 @@
+[SOURCES]
+  └── IMOS raw .DAT files
+        └── PAPCA/<LOGGER>/<YYYYMMDD>/raw/*.DAT
+
+[STEP 1: Convert to WAV]
+  Input: .DAT files
+  Process: Decode → resample (48kHz) → gain/clip checks → integrity hashes
+  Output: long WAVs
+  Stored in: data/clips_input_wav/
+  Metadata: manifests/io_hashes.parquet
+
+[STEP 2: Slice into Clips]
+  Input: long WAVs
+  Process: Sliding window (10s clips, 5s hop)
+  Output: ~10s clip WAVs
+  Stored in: data/clips/
+  Metadata: manifests/clips.parquet
+
+[STEP 3a: Deep Features]
+  Input: 10s clips
+  Process: PANNs, YAMNet pretrained models
+  Output: 1024D + 1024D embeddings
+
+[STEP 3b: Self-Supervised Features]
+  Input: 10s clips
+  Process: BYOL-A / SimCLR embeddings (fine-tuned on reef audio)
+  Output: 256D embeddings
+
+[STEP 3c: Ecoacoustic Indices]
+  Input: 10s clips
+  Process: Compute ecoacoustic indices (band energy, entropy, harmonics, modulation, impulsiveness, etc.)
+  Output: k-dimensional eco-feature vector
+
+[STEP 4: Join Features]
+  Input: all embeddings (deep + SSL + ecoacoustic)
+  Process: Concatenate → unified 1320D feature vector
+  Output: manifests/features.parquet
+
+[STEP 5: Dimensionality Reduction + Clustering]
+  Input: 1320D features
+  Process: PCA (retain 95% variance) → UMAP → HDBSCAN clustering
+  Output: cluster IDs + probabilities
+  Metadata: intermediate coordinates
+
+[STEP 6: Constraint-Guided Clustering]
+  Input: raw clusters
+  Process:
+    - must-link: temporal bursts (clips close in time must cluster together)
+    - cannot-link: contradictory features (e.g., tonal vs impulsive)
+  Output: refined cluster labels + confidence scores
+  Metadata: manifests/clusters.parquet
+
+[STEP 7: Auto-Label Clusters]
+  Input: refined clusters
+  Process:
+    - Apply acoustic rules to assign BIO / AMBIENT / HUMAN
+    - Mark clusters with low confidence as UNK
+  Output: auto-labeled cluster dataset
+
+[STEP 8: Train Small Classifier]
+  Input: confidently labeled clusters
+  Process:
+    - Extract features from confident set
+    - Train lightweight supervised model (Logistic Regression, MLP, LightGBM, etc.)
+  Output: deployable classifier
+  Saved as: models/zmsc_classifier.onnx
+
+
+[STEP 10: Evaluate Model]
+  Input: classifier + clustering results
+  Evaluation metrics:
+    - Cluster quality (silhouette, density)
+    - Ecological plausibility (diel cycles, seasonal patterns)
+    - Cross-logger agreement
+  Output: reports/ with plots, metrics, diel cycle graphs
+
+[STEP 11: Final Freeze Drop]
+  Collected artifacts:
+    - data/clips/ (10s WAVs)
+    - data/mels/ (spectrogram previews)
+    - data/indices/ (ecoacoustic feature files)
+    - data/manifests/ (clips, features, clusters, hashes)
+    - data/previews/ (hourly mp3 snippets + PNGs)
+    - models/zmsc_classifier.onnx
+    - reports/ (evaluation outputs)
+    - README.md
+  Output: data/freeze/ (portable, shareable dataset + trained model)

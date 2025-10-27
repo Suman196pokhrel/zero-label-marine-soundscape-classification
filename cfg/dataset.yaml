@@ -1,0 +1,14 @@
+raw_root: "data/raw/PAPCA"          
+ready_root: "data"                  
+clip:
+  length_s: 10
+  hop_s: 5
+audio:
+  target_sr: 6000
+  channels: 1
+  sample_width_bits: 16
+loggers:
+  "2802":
+    assumed_sr: 6000
+  "2823":
+    assumed_sr: 6000
