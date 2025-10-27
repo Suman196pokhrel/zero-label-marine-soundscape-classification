@@ -1,79 +1,166 @@
-**Zero-Label Marine Soundscape Classification (ZMSC)** pipeline:
+# 🌊 Reef Acoustic Monitoring - Weakly-Supervised Soundscape Classification
+
+<div align="center">
+
+![Coral Reef](https://img.shields.io/badge/🐠-Coral_Reef_Acoustics-blue)
+![ML](https://img.shields.io/badge/Machine_Learning-Weakly--Supervised-green)
+![Python](https://img.shields.io/badge/Python-3.10-yellow)
+![Status](https://img.shields.io/badge/Status-Research-orange)
+
+**Automated classification of underwater reef soundscapes using machine learning**  
+*No manual labeling required*
+
+[Overview](#-overview) • [Features](#-key-features) • [Methodology](#-methodology) • [Results](#-results) • [Structure](#-project-structure) • [Usage](#-usage)
+
+</div>
 
 ---
 
-## 📂 Folders
+## 🎯 Overview
 
-### `data/`
+This project develops an **automated classification system** for marine acoustic data from long-term reef monitoring. Using **weakly-supervised learning**, the system identifies different soundscape types—**biological activity (BIO)**, **ambient ocean sounds (AMBIENT)**, and **anthropogenic noise (HUMAN)**—without requiring extensive manual annotation.
 
-This is your **working data directory**.
+### Why This Matters
 
-* **raw/** → Holds your untouched `.DAT` files (as downloaded).
-* **clips/** → 10-second `.wav` slices after conversion & slicing.
-* **mels/** → Log-mel spectrograms (as `.npy` or `.png` previews for quick checks).
-* **indices/** → Ecoacoustic indices (e.g., spectral entropy, ACI, band energies) stored in `.parquet` or `.csv`.
-* **previews/** → Lightweight sanity checks (e.g., small `.mp3` clips + spectrogram images sampled per hour).
-* **manifests/** → Tables (`.csv`/`.parquet`) describing the dataset at each stage:
-
-  * `clips.parquet` → all metadata for every clip.
-  * `features.parquet` → embeddings (PANNs, SSL, indices).
-  * `clusters.parquet` → clustering + auto-labels.
+- 🐠 **Marine Conservation**: Understand reef health through acoustic monitoring
+- ⏱️ **Scalability**: Process millions of audio clips automatically
+- 💰 **Cost-Effective**: No expensive manual labeling required
+- 🔬 **Research Tool**: Enable long-term ecosystem monitoring
 
 ---
 
-### `models/`
+## ✨ Key Features
 
-* Stores pretrained weights (e.g., **PANNs**, **YAMNet**) and your fine-tuned self-supervised models (BYOL-A, SimCLR).
-* Keeps everything local so the pipeline can run reproducibly, even offline.
+### 🎵 Multi-Source Feature Extraction
+- **YAMNet Embeddings** (1,024 dims) - Pre-trained deep learning features
+- **Ecoacoustic Indices** (17 dims) - Domain-specific acoustic metrics
+- **PCA Dimensionality Reduction** - Efficient 39-dimensional representation
 
----
+### 🤖 Weakly-Supervised Learning Pipeline
+- **Unsupervised Clustering** - K-Means discovers natural patterns
+- **Automated Pseudo-Labeling** - Rule-based heuristics assign categories
+- **Two-Stage Classification** - Hierarchical AMBIENT → BIO → HUMAN detection
 
-### `cfg/`
-
-* YAML config files controlling the pipeline.
-* Example: `default.yaml` defines paths, audio params (sr, hop), feature extraction settings, clustering hyperparameters, etc.
-* Advantage: you don’t hard-code values inside scripts → you can swap configs (e.g., `cfg/perth_canyon.yaml`, `cfg/kangaroo_island.yaml`).
-
----
-
-### `src/`
-
-* Your **pipeline scripts**, named by order:
-
-  * `00_dat_to_wav.py` → convert `.DAT` → `.wav`.
-  * `01_slice.py` → cut into 10s clips with 5s hop.
-  * `02_features_deep.py` → extract embeddings from pretrained models (PANNs, YAMNet).
-  * `03_features_ssl.py` → self-supervised embeddings (BYOL-A, SimCLR).
-  * `04_features_indices.py` → ecoacoustic indices.
-  * `05_reduce_cluster.py` → PCA → UMAP → HDBSCAN.
-  * `06_constrained_clustering.py` → apply must-link / cannot-link constraints.
-  * `07_autolabel_train.py` → auto-label BIO / AMBIENT / HUMAN + train classifier.
-  * `99_freeze_drop.py` → final “dataset drop” (Step 10).
+### 🧪 Novel Validation Approach
+- **Robustness Testing** - Perturbation-based consistency analysis
+- **Ensemble Validation** - Multi-model agreement (5 architectures)
+- **No ground truth required** - Confidence metrics without manual labels
 
 ---
 
-### `scripts/`
+## 🔬 Methodology
 
-* Helper shell scripts.
-* Example: `run_all.sh` to run the full pipeline.
-* Can also keep “one-liners” here (e.g., daily reslice, recompute indices).
+```mermaid
+graph LR
+    A[🎵 Raw Audio<br/>10s clips] --> B[📊 Feature Extraction<br/>YAMNet + Ecoacoustic]
+    B --> C[🔄 PCA<br/>1041 → 39 dims]
+    C --> D[🎯 K-Means Clustering<br/>K=3]
+    D --> E[🏷️ Pseudo-Labeling<br/>Rule-based]
+    E --> F[🤖 Stage 1<br/>AMBIENT vs BIO]
+    F --> G[🚢 Stage 2<br/>HUMAN Detection]
+    G --> H[📈 Classification<br/>3 Categories]
+```
+
+### Pipeline Steps
+
+1. **📊 Feature Engineering**
+   - Extract acoustic embeddings and indices
+   - Reduce dimensionality while preserving variance
+
+2. **🔍 Unsupervised Discovery**
+   - Cluster audio clips by acoustic similarity
+   - Compare K-Means, HDBSCAN, and GMM
+
+3. **🏷️ Automated Labeling**
+   - Apply acoustic ecology principles
+   - Generate pseudo-labels with confidence scores
+
+4. **🎯 Supervised Classification**
+   - Train multi-stage detector on pseudo-labels
+   - Validate using robustness and ensemble methods
 
 ---
 
-## 📝 Root files
+## 📈 Results
 
-* **README.md** → Quick description of the project, folder structure, and how to run.
-* **Makefile** → Defines pipeline stages so you can just run `make all`.
+### Model Performance
+
+| Metric | Score | Status |
+|--------|-------|--------|
+| **Clustering Quality** (Silhouette) | 0.769 | ✅ Excellent separation |
+| **Stage 1 Accuracy** | 99.90% | ⚠️ Requires larger test set |
+| **Robustness** | 0.998 | ✅ Stable predictions |
+| **Model Agreement** | 0.999 | ✅ High consensus |
+
+### ⚠️ Important Notes
+
+- Current validation on **small test set (n=20)**
+- Pseudo-labels not verified against expert annotations
+- Stage 2 (HUMAN detection) in development
+- Comprehensive validation needed before deployment
+
+See [detailed evaluation](Result_Evaluation.md) for full analysis.
 
 ---
 
-## 🧠 Why this structure matters
+## 📁 Project Structure
 
-* **Reproducibility** → Data, configs, code, and outputs are cleanly separated.
-* **Modularity** → You can rerun only a specific stage (e.g., just clustering) without touching others.
-* **Scalability** → Easy to extend for new deployments (just add a new config).
-* **Portability** → Step 10 freeze creates a “drop” you can share with supervisors, or re-use for new experiments.
+```
+reef_zmsc/
+│
+├── 📂 data/
+│   ├── autolabeling_fixed/          # Pseudo-labeling results
+│   │   ├── models/                  # Stage 1 classifier
+│   │   └── results/                 # Cluster labels
+│   │
+│   ├── clustering/                  # K-Means, HDBSCAN, GMM
+│   │   └── results_50k/             # Clustered data
+│   │
+│   ├── features/                    # Extracted features
+│   │   ├── embeds_yamnet_50k/       # YAMNet embeddings
+│   │   ├── embeds_ecoacoustic_50k/  # Ecoacoustic indices
+│   │   ├── embeds_fused_50k/        # Combined features
+│   │   └── embeds_preprocessed_50k/ # PCA features
+│   │
+│   ├── model_testing/               # Test predictions
+│   │   └── results/
+│   │
+│   ├── model_validation/            # Robustness & agreement tests
+│   │
+│   └── two_stage_detector/          # Stage 2 (HUMAN) detector
+│       ├── models/
+│       └── results/
+│
+├── 📂 calibration/                  # Logger calibration files
+├── 📂 cfg/                          # Configuration files
+├── 📂 notebooks/                    # Jupyter analysis notebooks
+├── 📂 scripts/                      # Python scripts
+├── 📂 wav/                          # Raw audio data (PAPCA)
+│
+├── 📄 README.md                     # This file
+├── 📄 Result_Evaluation.md          # Detailed validation report
+└── 📄 requirements.txt              # Dependencies
+```
+
+
+## 🛠️ Technologies
+
+| Category | Tools |
+|----------|-------|
+| **Language** | Python 3.10 |
+| **ML/DL** | scikit-learn, TensorFlow, YAMNet |
+| **Audio** | librosa, soundfile |
+| **Data** | pandas, numpy, parquet |
+| **Clustering** | K-Means, HDBSCAN, GMM |
+| **Visualization** | matplotlib, seaborn |
 
 ---
 
-👉 Do you want me to also sketch **what each `manifest` table should contain** (column names + datatypes), so you have a clear schema before you start generating them?
+## 📊 Dataset
+
+- **Source**: Autonomous underwater acoustic recorders
+- **Location**: Coral reef ecosystems (2 loggers)
+- **Duration**: 271 days continuous monitoring
+- **Total Clips**: 1,053,610 × 10-second segments
+- **Training Set**: 15,392 clips (after deduplication)
+
