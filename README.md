@@ -10,7 +10,7 @@
 **Automated classification of underwater reef soundscapes using machine learning**  
 *No manual labeling required*
 
-[Overview](#-overview) • [Features](#-key-features) • [Methodology](#-methodology) • [Results](#-results) • [Structure](#-project-structure) • [Usage](#-usage)
+[Overview](#-overview) • [Features](#-key-features) • [Methodology](#-methodology) • [Results](#-results) • [Structure](#-project-structure)
 
 </div>
 
